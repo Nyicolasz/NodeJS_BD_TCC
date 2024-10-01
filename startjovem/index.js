@@ -1,45 +1,35 @@
-/*import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
-*/
 const http = require('http');
 const express = require('express');
-const status = require ('http-status');
-const sequelize = require ('./src/database/database');
+const status = require('http-status');
+const sequelize = require('./src/database/database');
 const app = express();
-const routes = require ('./src/routes/routes.js');
+const routes = require('./src/routes/routes');
 const cors = require('cors');
 
+// Importando múltiplos modelos
+const Login_User = require('./src/models/login');  // Modelo Login
+const Usuario = require('./src/models/usuario');  // Modelo Usuario
+const Cadastro = require('./src/models/cadastro');  // Modelo Cadastro
+
 app.use(express.json());
-
 app.use(cors());
-
 app.use('/sistema', routes);
 
 app.use((req, res, next) => {
-    res.status.apply(status.NOT_FOUND).send("Page not found");
+    res.status(status.NOT_FOUND).send("Page not found");
 });
 
-app.use((req, res, next) => {
-    res.status.apply(status.INTERNAL_SERVER_ERROR).json({error});
+app.use((error, req, res, next) => {
+    res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message });
 });
 
-sequelize.sync({force: false}).then( () => {
+// Sincronizando o banco de dados com as tabelas Produto e Usuario
+sequelize.sync({ force: true }).then(() => {
     const port = 3003;
     app.set("port", port);
     const server = http.createServer(app);
     server.listen(port);
+    console.log(`Server running on port ${port}`);
+}).catch(err => {
+    console.error('Unable to sync database:', err);
 });

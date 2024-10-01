@@ -1,27 +1,30 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../database/database'); // Caminho correto para o seu arquivo de configuração
 
-const Usuario = sequelize.define('Usuario', {
-    nome: {
+const Cadastro = sequelize.define('Cadastro', {
+    Nome: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    salario: {
-        type: DataTypes.FLOAT,
+    Email: {
+        type: DataTypes.STRING,
         allowNull: false
     },
-    dataNascimento: {
+    DataNascimento: {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    ativo: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-    }
+    Senha: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    SenhaConfirma: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
 }, {
-    tableName: 'usuarios',
+    tableName: 'Cadastro',
     timestamps: false
 });
 
-module.exports = Usuario;
+module.exports = Cadastro;
