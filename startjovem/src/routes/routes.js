@@ -2,6 +2,9 @@ const express = require('express');
 const UsuarioController = require('../controllers/usuarioController');
 const LoginController = require('../controllers/loginController');
 const CadastroController = require('../controllers/cadastroController');
+
+const SistemaLogin = require('../Sitemas de Login/controllers/authController');
+
 const router = express.Router();
 
 // Rotas para usuários
@@ -20,6 +23,13 @@ router.delete('/login/:id', LoginController.Delete);
 
 router.post('/cadastros', CadastroController.Insert);
 router.get('/cadastros', CadastroController.SearchAll);
+
+
+router.post('/users', SistemaLogin.register);
+router.post('/userss', SistemaLogin.login);
+
+
+
 
 
 module.exports = router;

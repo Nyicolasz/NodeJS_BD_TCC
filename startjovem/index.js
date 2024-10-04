@@ -10,6 +10,8 @@ const cors = require('cors');
 const Login_User = require('./src/models/login');  // Modelo Login
 const Usuario = require('./src/models/usuario');  // Modelo Usuario
 const Cadastro = require('./src/models/cadastro');  // Modelo Cadastro
+const User = require('./src/Sitemas de Login/models/user');  // Modelo Cadastro
+
 
 app.use(express.json());
 app.use(cors());
@@ -33,3 +35,6 @@ sequelize.sync({ alert: true }).then(() => {
 }).catch(err => {
     console.error('Unable to sync database:', err);
 });
+
+
+
