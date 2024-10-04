@@ -26,7 +26,7 @@ router.get('/cadastros', CadastroController.SearchAll);
 
 
 router.post('/users', SistemaLogin.register);
-router.post('/userss', SistemaLogin.login);
+router.post('/login_users', SistemaLogin.login);
 
 
 
