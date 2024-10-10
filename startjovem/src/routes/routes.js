@@ -24,9 +24,15 @@ router.delete('/login/:id', LoginController.Delete);
 router.post('/cadastros', CadastroController.Insert);
 router.get('/cadastros', CadastroController.SearchAll);
 
-
-router.post('/users', SistemaLogin.register);
 router.post('/login_users', SistemaLogin.login);
+router.post('/users', SistemaLogin.register);
+router.put('/users/:id', SistemaLogin.Update);
+router.get('/users', SistemaLogin.SearchAll);
+router.get('/users/:id', SistemaLogin.SearchOne);
+router.delete('/users/:id', SistemaLogin.Delete);
+
+
+
 
 
 

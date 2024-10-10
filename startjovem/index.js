@@ -26,7 +26,7 @@ app.use((error, req, res, next) => {
 });
 
 // Sincronizando o banco de dados com as tabelas Produto e Usuario
-sequelize.sync({ alert: true }).then(() => {
+sequelize.sync({ alert: false }).then(() => {
     const port = 3003;
     app.set("port", port);
     const server = http.createServer(app);

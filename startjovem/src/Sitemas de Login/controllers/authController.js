@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const status = require('http-status');
+
 
 // Cadastro de usuário
 exports.register = async (req, res) => {
@@ -52,3 +54,64 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ id: user.id, Nome: user.Nome }, 'secreto', { expiresIn: '1h' });
     res.json({ message: 'Login realizado com sucesso!', token, user });
 };
+
+exports.SearchAll = (req, res, next) => {
+    User.findAll()
+    .then((users) => res.status(status.OK).send(users))
+    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
+
+exports.SearchOne = (req, res, next) => {
+    const id = req.params.id;
+    User.findByPk(id)
+    .then((users) => {
+        if (users) {
+            res.status(status.OK).send(users);
+        } else {
+            res.status(status.NOT_FOUND).send();
+        }
+    })
+    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
+
+exports.Update = async (req, res, next) => {
+    const id = req.params.id;
+    const { Nome, Email, DataNascimento, Senha } = req.body;
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        // Se a senha for fornecida, atualize-a
+        if (Senha) {
+            const hashedPassword = await bcrypt.hash(Senha, 10);
+            await user.update({ Nome, Email, DataNascimento, Senha: hashedPassword });
+        } else {
+            await user.update({ Nome, Email, DataNascimento });
+        }
+
+        res.status(200).json({ message: 'Perfil atualizado com sucesso', user });
+    } catch (error) {
+        res.status(400).json({ error: 'Erro ao atualizar perfil', details: error });
+    }
+};
+
+
+
+exports.Delete = (req, res, next) => {
+    const id = req.params.id;
+    User.findByPk(id)
+        .then((user) => {
+            if (user) {
+                user.destroy()
+                    .then(() => res.status(status.OK).send())
+                    .catch((error) => res.status(status.BAD_REQUEST).json({ error: error.message }));
+            } else {
+                res.status(status.NOT_FOUND).send();
+            }
+        })
+        .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
+

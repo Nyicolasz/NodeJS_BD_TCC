@@ -23,6 +23,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    funcao: {
+        type: DataTypes.ENUM('admin', 'user'),
+        defaultValue: 'user',  // Por padrão, o usuário será 'user'
+    },
 }, {
     tableName: 'users',
     timestamps: false
