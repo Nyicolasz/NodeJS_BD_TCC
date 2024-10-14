@@ -10,7 +10,9 @@ const cors = require('cors');
 const Login_User = require('./src/models/login');  // Modelo Login
 const Usuario = require('./src/models/usuario');  // Modelo Usuario
 const Cadastro = require('./src/models/cadastro');  // Modelo Cadastro
-const User = require('./src/Sitemas de Login/models/user');  // Modelo Cadastro
+const User = require('./src/Sitemas de Login/models/user');  // Modelo User
+const Feedback = require('./src/Sistema de Feedback/models/feedback');  // Modelo Feedback
+
 
 
 app.use(express.json());
