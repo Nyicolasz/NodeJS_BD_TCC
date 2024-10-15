@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const status = require('http-status');
 
-
 // Cadastro de usuário
 exports.register = async (req, res) => {
     const { Nome, Email, DataNascimento, Senha, SenhaConfirma } = req.body;
@@ -26,7 +25,8 @@ exports.register = async (req, res) => {
             Email,
             DataNascimento,
             Senha: hashedPassword,
-            SenhaConfirma: hashedPassword
+            SenhaConfirma: hashedPassword,
+            funcao: 'user' // Define o usuário como 'user' por padrão
         });
         res.status(201).json({ message: 'Usuário registrado com sucesso!' });
     } catch (error) {
@@ -34,49 +34,41 @@ exports.register = async (req, res) => {
     }
 };
 
-
-
-
 // Login de usuário
 exports.login = async (req, res) => {
     const { Email, Senha } = req.body;
 
     const user = await User.findOne({ where: { Email } });
     if (!user) {
-        return res.status(400).json({ message: 'Usuário ou senha errado.' });
+        return res.status(400).json({ message: 'Usuário ou senha errados.' });
     }
 
     const validPassword = await bcrypt.compare(Senha, user.Senha);
     if (!validPassword) {
-        return res.status(400).json({ message: 'Usuário ou senha errado.' });
+        return res.status(400).json({ message: 'Usuário ou senha errados.' });
     }
 
+    // Gera um token (se necessário)
     const token = jwt.sign({ id: user.id, Nome: user.Nome }, 'secreto', { expiresIn: '1h' });
-    res.json({ message: 'Login realizado com sucesso!', token, user });
-};
 
-exports.SearchAll = (req, res, next) => {
-    User.findAll()
-    .then((users) => res.status(status.OK).send(users))
-    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
-};
-
-exports.SearchOne = (req, res, next) => {
-    const id = req.params.id;
-    User.findByPk(id)
-    .then((users) => {
-        if (users) {
-            res.status(status.OK).send(users);
-        } else {
-            res.status(status.NOT_FOUND).send();
+    // Inclui DataNascimento e funcao na resposta
+    res.json({ 
+        message: 'Login realizado com sucesso!',
+        token,
+        user: {
+            id: user.id,
+            Nome: user.Nome,
+            Email: user.Email,
+            DataNascimento: user.DataNascimento,
+            funcao: user.funcao  // Retorna a função do usuário ('admin' ou 'user')
         }
-    })
-    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+    });
 };
 
+// Atualização de perfil
 exports.Update = async (req, res, next) => {
     const id = req.params.id;
-    const { Nome, Email, DataNascimento, Senha } = req.body;
+    const { Nome, Email, DataNascimento, funcao } = req.body;
 
     try {
         const user = await User.findByPk(id);
@@ -84,23 +76,42 @@ exports.Update = async (req, res, next) => {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
 
-        // Se a senha for fornecida, atualize-a
-        if (Senha) {
-            const hashedPassword = await bcrypt.hash(Senha, 10);
-            await user.update({ Nome, Email, DataNascimento, Senha: hashedPassword });
-        } else {
-            await user.update({ Nome, Email, DataNascimento });
-        }
-
+        // Atualiza nome, email, data de nascimento e função (se fornecida)
+        await user.update({ Nome, Email, DataNascimento, funcao });
+        
         res.status(200).json({ message: 'Perfil atualizado com sucesso', user });
     } catch (error) {
         res.status(400).json({ error: 'Erro ao atualizar perfil', details: error });
     }
 };
 
+// Buscar todos os usuários
+exports.SearchAll = (req, res) => {
+    User.findAll({
+        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao'] // Inclua o campo funcao
+    })
+    .then((users) => res.status(status.OK).send(users))
+    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
 
+// Buscar um usuário
+exports.SearchOne = (req, res) => {
+    const id = req.params.id;
+    User.findByPk(id, {
+        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao'] // Inclua o campo funcao
+    })
+    .then((user) => {
+        if (user) {
+            res.status(status.OK).send(user);
+        } else {
+            res.status(status.NOT_FOUND).send();
+        }
+    })
+    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
 
-exports.Delete = (req, res, next) => {
+// Excluir um usuário
+exports.Delete = (req, res) => {
     const id = req.params.id;
     User.findByPk(id)
         .then((user) => {
@@ -114,4 +125,3 @@ exports.Delete = (req, res, next) => {
         })
         .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
 };
-
