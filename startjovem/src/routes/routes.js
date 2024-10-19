@@ -5,6 +5,8 @@ const CadastroController = require('../controllers/cadastroController');
 
 const SistemaLogin = require('../Sitemas de Login/controllers/userController');
 const SistemaFeedback = require('../Sistema de Feedback/controllers/feedbackController');
+const areaProfiController = require('../Sistema de Cursos/controllers/areaProfiController');
+const cursoController = require('../Sistema de Cursos/controllers/cursoController');
 
 
 const router = express.Router();
@@ -41,9 +43,17 @@ router.post('/feedback', SistemaFeedback.Insert);
 router.get('/feedback', SistemaFeedback.SearchAll);
 router.get('/feedback/:id', SistemaFeedback.SearchOne);
 
+router.post('/AreaProfi', areaProfiController.Insert);
+router.get('/AreaProfi', areaProfiController.SearchAll);
+router.get('/AreaProfi/:id', areaProfiController.SearchOne);
+router.put('/AreaProfi/:id', areaProfiController.Update);
+router.delete('/AreaProfi/:id', areaProfiController.Delete);
 
-
-
+router.post('/Curso', cursoController.Insert);
+router.get('/Curso', cursoController.SearchAll);
+router.get('/Curso/:id', cursoController.SearchOne);
+router.put('/Curso/:id', cursoController.Update);
+router.delete('/Curso/:id', cursoController.Delete);
 
 
 module.exports = router;

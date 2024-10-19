@@ -12,6 +12,9 @@ const Usuario = require('./src/models/usuario');  // Modelo Usuario
 const Cadastro = require('./src/models/cadastro');  // Modelo Cadastro
 const User = require('./src/Sitemas de Login/models/user');  // Modelo User
 const Feedback = require('./src/Sistema de Feedback/models/feedback');  // Modelo Feedback
+const AreaProfi = require('./src/Sistema de Cursos/models/areaProfi');
+const Cursos = require('./src/Sistema de Cursos/models/curso');
+
 
 
 
@@ -27,8 +30,9 @@ app.use((error, req, res, next) => {
     res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message });
 });
 
+
 // Sincronizando o banco de dados com as tabelas Produto e Usuario
-sequelize.sync({ alert: false }).then(() => {
+sequelize.sync({ alert: true }).then(() => {
     const port = 3003;
     app.set("port", port);
     const server = http.createServer(app);
