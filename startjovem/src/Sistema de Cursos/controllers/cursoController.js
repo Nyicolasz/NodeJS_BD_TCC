@@ -4,13 +4,14 @@ const AreaProfi = require('../models/areaProfi');
 
 // Inserir um novo curso
 exports.Insert = async (req, res) => {
-    const { Nome_Curso, Descricao_Curso, Carga_Horaria, ID_AreaProfi, Link } = req.body;
+    const { Nome_Curso, Descricao_Curso, Carga_Horaria, Nivel, ID_AreaProfi, Link } = req.body;
 
     try {
         const newCurso = await Curso.create({
             Nome_Curso,
             Descricao_Curso,
             Carga_Horaria,
+            Nivel,
             ID_AreaProfi,
             Link
         });
@@ -59,12 +60,12 @@ exports.SearchOne = (req, res) => {
 // Atualizar um curso
 exports.Update = (req, res) => {
     const id = req.params.id;
-    const { Nome_Curso, Descricao_Curso, Carga_Horaria, ID_AreaProfi, Link } = req.body;
+    const { Nome_Curso, Descricao_Curso, Carga_Horaria, Nivel, ID_AreaProfi, Link } = req.body;
 
     Curso.findByPk(id)
         .then((curso) => {
             if (curso) {
-                return curso.update({ Nome_Curso, Descricao_Curso, Carga_Horaria, ID_AreaProfi, Link });
+                return curso.update({ Nome_Curso, Descricao_Curso, Carga_Horaria, Nivel, ID_AreaProfi, Link });
             } else {
                 res.status(status.NOT_FOUND).send();
             }

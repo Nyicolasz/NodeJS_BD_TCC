@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const User = require('../models/user');
 const status = require('http-status');
+const fs = require('fs');
+
 
 // Cadastro de usuário
 exports.register = async (req, res) => {
@@ -51,8 +54,8 @@ exports.login = async (req, res) => {
     // Gera um token (se necessário)
     const token = jwt.sign({ id: user.id, Nome: user.Nome }, 'secreto', { expiresIn: '1h' });
 
-    // Inclui DataNascimento e funcao na resposta
-    res.json({ 
+    // Inclui DataNascimento, funcao e ImagemPerfil na resposta
+    res.json({
         message: 'Login realizado com sucesso!',
         token,
         user: {
@@ -60,7 +63,8 @@ exports.login = async (req, res) => {
             Nome: user.Nome,
             Email: user.Email,
             DataNascimento: user.DataNascimento,
-            funcao: user.funcao  // Retorna a função do usuário ('admin' ou 'user')
+            funcao: user.funcao,
+            ImagemPerfil: user.ImagemPerfil // Inclua a URL da imagem de perfil
         }
     });
 };
@@ -78,7 +82,7 @@ exports.Update = async (req, res, next) => {
 
         // Atualiza nome, email, data de nascimento e função (se fornecida)
         await user.update({ Nome, Email, DataNascimento, funcao });
-        
+
         res.status(200).json({ message: 'Perfil atualizado com sucesso', user });
     } catch (error) {
         res.status(400).json({ error: 'Erro ao atualizar perfil', details: error });
@@ -88,7 +92,7 @@ exports.Update = async (req, res, next) => {
 // Buscar todos os usuários
 exports.SearchAll = (req, res) => {
     User.findAll({
-        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao'] // Inclua o campo funcao
+        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao', 'ImagemPerfil'] // Inclua o campo ImagemPerfil
     })
     .then((users) => res.status(status.OK).send(users))
     .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
@@ -98,7 +102,7 @@ exports.SearchAll = (req, res) => {
 exports.SearchOne = (req, res) => {
     const id = req.params.id;
     User.findByPk(id, {
-        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao'] // Inclua o campo funcao
+        attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao', 'ImagemPerfil'] // Inclua o campo ImagemPerfil
     })
     .then((user) => {
         if (user) {
@@ -124,4 +128,52 @@ exports.Delete = (req, res) => {
             }
         })
         .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+};
+
+// Função para fazer o upload da imagem de perfil
+exports.uploadProfileImage = async (req, res) => {
+    const id = req.params.id;
+    let imagePath = req.file ? path.join('/uploads', req.file.filename) : null;
+
+    // Substituir barras invertidas por barras normais para garantir a compatibilidade
+    imagePath = imagePath.replace(/\\/g, '/');
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+
+        // Atualiza o campo ImagemPerfil com o caminho da imagem
+        await user.update({ ImagemPerfil: imagePath });
+        res.status(200).json({ message: "Imagem de perfil atualizada com sucesso.", imagePath });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao atualizar imagem.", error });
+    }
+};
+
+// Função para remover a imagem de perfil
+exports.removeProfileImage = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: "Usuário não encontrado." });
+        }
+
+        // Verifica se há uma imagem associada e remove o arquivo do servidor
+        if (user.ImagemPerfil) {
+            const imagePath = path.join(__dirname, '..', user.ImagemPerfil);
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error("Erro ao remover o arquivo:", err);
+                }
+            });
+        }
+
+        // Atualiza o campo `ImagemPerfil` para `null` no banco de dados
+        await user.update({ ImagemPerfil: null });
+        res.status(200).json({ message: "Imagem de perfil removida com sucesso." });
+    } catch (error) {
+        console.error("Erro ao remover imagem de perfil:", error);
+        res.status(500).json({ message: "Erro ao remover imagem de perfil.", error });
+    }
 };

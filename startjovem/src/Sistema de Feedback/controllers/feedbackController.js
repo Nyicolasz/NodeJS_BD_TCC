@@ -6,12 +6,13 @@ const status = require('http-status');
 
 // Cadastro de usuário
 exports.Insert = async (req, res) => {
-    const { Nome, Email, Mensagem } = req.body;
+    const { Nome, Email, Assunto, Mensagem } = req.body;
 
     try {
         const newFeedback = await Feedback.create({
             Nome,
             Email,
+            Assunto,
             Mensagem
         });
         res.status(400).json({ message: 'Mensagem registrada com sucesso!' });

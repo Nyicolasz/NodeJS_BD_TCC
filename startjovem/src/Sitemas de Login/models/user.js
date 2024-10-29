@@ -27,6 +27,10 @@ const User = sequelize.define('User', {
         type: DataTypes.ENUM('admin', 'user'),
         defaultValue: 'user',  // Por padrão, o usuário será 'user'
     },
+
+    ImagemPerfil: { 
+        type: DataTypes.STRING // Campo para o caminho da imagem
+    },
 }, {
     tableName: 'users',
     timestamps: false

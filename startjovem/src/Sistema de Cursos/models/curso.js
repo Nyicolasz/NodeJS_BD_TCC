@@ -15,6 +15,10 @@ const Curso = sequelize.define('Curso', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    Nivel: {
+        type: DataTypes.ENUM('Básico', 'Intermediário', 'Avançado'),
+        allowNull: false
+    },
     ID_AreaProfi: {
         type: DataTypes.INTEGER,
         references: {

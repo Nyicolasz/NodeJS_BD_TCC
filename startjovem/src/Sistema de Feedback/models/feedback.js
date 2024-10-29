@@ -10,6 +10,10 @@ const Feedback = sequelize.define('Feedback', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    Assunto:{
+        type: DataTypes.STRING (100),
+        allowNull: false,
+    },
     Mensagem: {
         type: DataTypes.STRING (1500),
         allowNull: false,
