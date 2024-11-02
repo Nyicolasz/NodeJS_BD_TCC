@@ -21,6 +21,10 @@ const Trilha = sequelize.define('Trilha', {
             key: 'id' // Chave primária na tabela relacionada
         }
     },
+    Progresso: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    }
 });
 
 

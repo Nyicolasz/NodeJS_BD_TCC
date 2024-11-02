@@ -91,6 +91,7 @@ router.post('/Trilhas', TrilhaController.Insert);
 router.get('/Trilhas', TrilhaController.SearchAll);
 router.get('/Trilhas/:id', TrilhaController.SearchOne);
 router.get('/trilhas/user/:userId', TrilhaController.SearchByUser); // Nova rota para buscar trilhas pelo ID do usuário
+router.put('/trilhas/:userId/:cursoId/progresso', TrilhaController.UpdateProgress);
 
 
 

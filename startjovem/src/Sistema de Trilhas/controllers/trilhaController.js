@@ -5,12 +5,13 @@ const Curso = require('../../Sistema de Cursos/models/curso'); // Importando o m
 
 // Inserir um novo trilha
 exports.Insert = async (req, res) => {
-    const { ID_User, ID_Curso } = req.body;
+    const { ID_User, ID_Curso, Progresso } = req.body;
 
     try {
         const newTrilha = await Trilha.create({
             ID_User,
             ID_Curso,
+            Progresso: 0
         });
         res.status(status.CREATED).json({ message: 'Trilha criado com sucesso!', newTrilha });
     } catch (error) {
@@ -20,6 +21,7 @@ exports.Insert = async (req, res) => {
         });
     }
 };
+
 
 // Buscar todas as trilhas
 exports.SearchAll = async (req, res) => {
@@ -80,3 +82,32 @@ exports.SearchByUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Atualizar o progresso de uma trilha específica
+exports.UpdateProgress = async (req, res) => {
+    const { userId, cursoId } = req.params;  // Captura o ID do usuário e do curso
+    const { progresso } = req.body;  // Recebe o novo progresso do corpo da requisição
+
+    try {
+        const trilha = await Trilha.findOne({
+            where: {
+                ID_User: userId,
+                ID_Curso: cursoId,
+            },
+        });
+
+        if (trilha) {
+            trilha.Progresso = progresso;  // Atualiza o progresso
+            await trilha.save();  // Salva as alterações no banco
+            res.status(status.OK).json({ message: 'Progresso atualizado com sucesso!' });
+        } else {
+            res.status(status.NOT_FOUND).json({ message: 'Trilha não encontrada para o usuário e curso especificados.' });
+        }
+    } catch (error) {
+        res.status(status.INTERNAL_SERVER_ERROR).json({
+            message: 'Erro ao atualizar o progresso.',
+            error: error.message,
+        });
+    }
+};
+
