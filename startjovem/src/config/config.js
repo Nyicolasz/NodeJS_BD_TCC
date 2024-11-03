@@ -11,7 +11,7 @@ module.exports = {
             password: ''
         }
     },
-    production:{
+    production: {
         database: {
             host: process.env.DB_HOST,
             host: process.env.DB_PORT
