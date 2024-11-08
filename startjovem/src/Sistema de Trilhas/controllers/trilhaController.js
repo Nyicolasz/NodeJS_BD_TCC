@@ -37,7 +37,7 @@ exports.SearchAll = async (req, res) => {
                 {
                     model: Curso,
                     as: 'curso',  // Usar o alias definido na associação
-                    attributes: ['Nome_Curso']  // Defina os campos que deseja incluir
+                    attributes: ['Nome_Curso', 'Nivel', 'Carga_Horaria']  // Defina os campos que deseja incluir
                 }
             ]
         });
@@ -73,7 +73,7 @@ exports.SearchByUser = async (req, res) => {
                 {
                     model: Curso,
                     as: 'curso',  // Usar o alias definido na associação
-                    attributes: ['id', 'Nome_Curso', 'Link']  // Campos específicos do curso
+                    attributes: ['id', 'Nome_Curso', 'Link', 'Nivel', 'Carga_Horaria']  // Campos específicos do curso
                 }
             ]
         });
