@@ -28,7 +28,7 @@ const User = sequelize.define('User', {
         defaultValue: 'user',  // Por padrão, o usuário será 'user'
     },
 
-    ImagemPerfil: { 
+    ImagemPerfil: {
         type: DataTypes.STRING // Campo para o caminho da imagem
     },
 }, {

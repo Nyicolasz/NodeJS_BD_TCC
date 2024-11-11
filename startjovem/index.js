@@ -16,6 +16,8 @@ const Feedback = require('./src/Sistema de Feedback/models/feedback');  // Model
 const AreaProfi = require('./src/Sistema de Cursos/models/areaProfi');
 const Cursos = require('./src/Sistema de Cursos/models/curso');
 const Trilhas = require('./src/Sistema de Trilhas/models/trilha');
+const VerificacaoCode = require('./src/Sitemas de Login/models/VerificationCode');
+
 
 
 app.use(express.json());

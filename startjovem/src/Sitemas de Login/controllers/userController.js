@@ -4,7 +4,10 @@ const path = require('path');
 const User = require('../models/user');
 const status = require('http-status');
 const fs = require('fs');
-
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const VerificationCode = require('../models/VerificationCode'); // Modelo para armazenar códigos temporários
+const { Op } = require('sequelize');
 
 // Cadastro de usuário
 exports.register = async (req, res) => {
@@ -40,6 +43,8 @@ exports.register = async (req, res) => {
 // Login de usuário
 exports.login = async (req, res) => {
     const { Email, Senha } = req.body;
+
+
 
     const user = await User.findOne({ where: { Email } });
     if (!user) {
@@ -94,8 +99,8 @@ exports.SearchAll = (req, res) => {
     User.findAll({
         attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao', 'ImagemPerfil'] // Inclua o campo ImagemPerfil
     })
-    .then((users) => res.status(status.OK).send(users))
-    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+        .then((users) => res.status(status.OK).send(users))
+        .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
 };
 
 // Buscar um usuário
@@ -104,14 +109,14 @@ exports.SearchOne = (req, res) => {
     User.findByPk(id, {
         attributes: ['id', 'Nome', 'Email', 'DataNascimento', 'funcao', 'ImagemPerfil'] // Inclua o campo ImagemPerfil
     })
-    .then((user) => {
-        if (user) {
-            res.status(status.OK).send(user);
-        } else {
-            res.status(status.NOT_FOUND).send();
-        }
-    })
-    .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
+        .then((user) => {
+            if (user) {
+                res.status(status.OK).send(user);
+            } else {
+                res.status(status.NOT_FOUND).send();
+            }
+        })
+        .catch((error) => res.status(status.INTERNAL_SERVER_ERROR).json({ error: error.message }));
 };
 
 // Excluir um usuário
@@ -177,3 +182,128 @@ exports.removeProfileImage = async (req, res) => {
         res.status(500).json({ message: "Erro ao remover imagem de perfil.", error });
     }
 };
+
+// Configuração do transporte de e-mail
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'startjovem.contato@gmail.com',
+        pass: 'edyy eakv skfi lqqp'
+    }
+});
+
+// Função para enviar o código de verificação
+exports.sendVerificationCode = async (req, res) => {
+    const { Email } = req.body;
+
+    // Gera um código de verificação
+    const verificationCode = crypto.randomInt(100000, 999999); // Código de 6 dígitos
+
+    // Salva o código no banco de dados com o e-mail e expiração
+    await VerificationCode.create({ email: Email, code: verificationCode, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+
+    // Envia o e-mail
+    try {
+        await transporter.sendMail({
+            from: 'seuemail@gmail.com',
+            to: Email,
+            subject: 'Código de Verificação',
+            text: `Seu código de verificação é: ${verificationCode}`
+        });
+
+        res.status(200).json({ message: 'Código de verificação enviado!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao enviar o e-mail de verificação.' });
+    }
+};
+
+// Função para verificar o código
+exports.verifyCode = async (req, res) => {
+    const { Email, code } = req.body;
+
+    try {
+        // Procura o código no banco de dados com o e-mail correspondente e não expirado
+        const verification = await VerificationCode.findOne({
+            where: {
+                email: Email,
+                code: code,
+                expiresAt: {
+                    [Op.gt]: new Date() // Garante que o código ainda está válido
+                }
+            }
+        });
+
+        if (!verification) {
+            return res.status(400).json({ message: 'Código inválido ou expirado.' });
+        }
+
+        // Se o código for válido, você pode deletá-lo do banco de dados (opcional)
+        await verification.destroy();
+
+        res.status(200).json({ message: 'E-mail verificado com sucesso!' });
+    } catch (error) {
+        console.error("Erro ao verificar o código:", error);
+        res.status(500).json({ message: 'Erro ao verificar o código.' });
+    }
+};
+
+// Função para enviar o código de recuperação de senha
+exports.sendPasswordResetCode = async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+        return res.status(404).json({ message: 'E-mail não encontrado.' });
+    }
+
+    const code = crypto.randomInt(100000, 999999).toString(); // Gera um código de 6 dígitos
+
+    await VerificationCode.create({ email, code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }); // Expira em 10 minutos
+
+    try {
+        await transporter.sendMail({
+            from: 'startjovem.contato@gmail.com', // Certifique-se de que este e-mail seja o mesmo usado na configuração do transporter
+            to: email,
+            subject: 'Código de Recuperação de Senha',
+            text: `Seu código de recuperação de senha é: ${code}`
+        });
+
+        res.status(200).json({ message: 'Código de recuperação enviado!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao enviar o e-mail de recuperação.' });
+    }
+};
+
+exports.verifyPasswordResetCode = async (req, res) => {
+    const { email, code, newPassword } = req.body;
+
+    try {
+        // Procura o código de verificação válido
+        const verification = await VerificationCode.findOne({
+            where: {
+                email,
+                code,
+                expiresAt: { [Op.gt]: new Date() }
+            }
+        });
+
+        if (!verification) {
+            return res.status(400).json({ message: 'Código inválido ou expirado.' });
+        }
+
+        // Redefine a senha do usuário
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await User.update({ Senha: hashedPassword }, { where: { email } });
+        await verification.destroy(); // Remove o código de verificação após o uso
+
+        res.status(200).json({ message: 'Senha redefinida com sucesso!' });
+    } catch (error) {
+        console.error("Erro ao redefinir a senha:", error);
+        res.status(500).json({ message: 'Erro ao redefinir a senha. Tente novamente mais tarde.' });
+    }
+};
+
+
+
