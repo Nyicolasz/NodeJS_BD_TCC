@@ -104,6 +104,8 @@ router.get('/Trilhas', TrilhaController.SearchAll);
 router.get('/Trilhas/:id', TrilhaController.SearchOne);
 router.get('/trilhas/user/:userId', TrilhaController.SearchByUser); // Nova rota para buscar trilhas pelo ID do usuário
 router.put('/trilhas/:userId/:cursoId/progresso', TrilhaController.UpdateProgress);
+router.delete('/trilhas/:userId/:cursoId', TrilhaController.Delete);
+
 
 // Rotas para envio e verificação de código de e-mail
 router.post('/send-verification-code', SistemaLogin.sendVerificationCode);

@@ -111,3 +111,30 @@ exports.UpdateProgress = async (req, res) => {
     }
 };
 
+// Excluir uma trilha específica de um usuário para um curso específico
+exports.Delete = async (req, res) => {
+    const { userId, cursoId } = req.params;
+
+    try {
+        const trilha = await Trilha.findOne({
+            where: {
+                ID_User: userId,
+                ID_Curso: cursoId,
+            },
+        });
+
+        if (trilha) {
+            await trilha.destroy();  // Exclui a trilha
+            res.status(status.OK).json({ message: 'Trilha removida com sucesso!' });
+        } else {
+            res.status(status.NOT_FOUND).json({ message: 'Trilha não encontrada para o usuário e curso especificados.' });
+        }
+    } catch (error) {
+        res.status(status.INTERNAL_SERVER_ERROR).json({
+            message: 'Erro ao excluir a trilha.',
+            error: error.message,
+        });
+    }
+};
+
+
