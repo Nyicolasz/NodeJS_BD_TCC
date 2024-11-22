@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'startjovem.contato@gmail.com',
-        pass: 'edyy eakv skfi lqqp' // Certifique-se de que é uma senha de aplicativo válida
+        pass: 'coli kgba mchf vrzj'
     }
 });
 

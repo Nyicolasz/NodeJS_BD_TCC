@@ -188,7 +188,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'startjovem.contato@gmail.com',
-        pass: 'ljdx pywq tovs nqvh'
+        pass: 'coli kgba mchf vrzj'
     }
 });
 

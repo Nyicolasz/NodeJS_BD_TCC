@@ -32,7 +32,18 @@ const Curso = sequelize.define('Curso', {
     },
 });
 
-// Definindo a associação
-Curso.belongsTo(AreaProfi, { foreignKey: 'ID_AreaProfi', as: 'areaProfi' });
+// Definindo a associação com exclusão em cascata
+Curso.belongsTo(AreaProfi, {
+    foreignKey: 'ID_AreaProfi',
+    as: 'areaProfi',
+    onDelete: 'CASCADE', // Exclusão em cascata
+});
+
+// Também definimos a associação reversa
+AreaProfi.hasMany(Curso, {
+    foreignKey: 'ID_AreaProfi',
+    as: 'cursos',
+    onDelete: 'CASCADE', // Exclusão em cascata
+});
 
 module.exports = Curso;
