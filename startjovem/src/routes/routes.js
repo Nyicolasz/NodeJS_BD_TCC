@@ -80,7 +80,7 @@ router.put('/users/:id/upload', upload.single('imagemPerfil'), SistemaLogin.uplo
 router.put('/users/:id/remove-image', SistemaLogin.removeProfileImage);
 
 
-
+router.post('/feedback', SistemaFeedback.Insert);
 router.get('/feedback', SistemaFeedback.SearchAll);
 router.get('/feedback/:id', SistemaFeedback.SearchOne);
 
