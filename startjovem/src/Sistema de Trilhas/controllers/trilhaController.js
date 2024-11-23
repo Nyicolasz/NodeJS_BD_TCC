@@ -5,22 +5,37 @@ const Curso = require('../../Sistema de Cursos/models/curso'); // Importando o m
 
 // Inserir um novo trilha
 exports.Insert = async (req, res) => {
-    const { ID_User, ID_Curso, Progresso } = req.body;
+    const { ID_User, ID_Curso } = req.body;
 
     try {
+        // Verifica se já existe uma trilha com a mesma combinação
+        const existingTrilha = await Trilha.findOne({
+            where: {
+                ID_User,
+                ID_Curso,
+            },
+        });
+
+        if (existingTrilha) {
+            return res.status(400).json({ message: 'Curso já adicionado à trilha.' });
+        }
+
+        // Cria uma nova trilha
         const newTrilha = await Trilha.create({
             ID_User,
             ID_Curso,
-            Progresso: 0
+            Progresso: 0,
         });
-        res.status(status.CREATED).json({ message: 'Trilha criado com sucesso!', newTrilha });
+
+        res.status(status.CREATED).json({ message: 'Trilha criada com sucesso!', newTrilha });
     } catch (error) {
         res.status(status.INTERNAL_SERVER_ERROR).json({
             message: 'Erro ao registrar a trilha.',
-            error: error.message
+            error: error.message,
         });
     }
 };
+
 
 
 // Buscar todas as trilhas
