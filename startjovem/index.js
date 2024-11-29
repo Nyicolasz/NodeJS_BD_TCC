@@ -8,9 +8,6 @@ const cors = require('cors');
 const path = require('path'); // Adicionado para servir arquivos estáticos
 
 // Importando múltiplos modelos
-const Login_User = require('./src/models/login');  // Modelo Login
-const Usuario = require('./src/models/usuario');  // Modelo Usuario
-const Cadastro = require('./src/models/cadastro');  // Modelo Cadastro
 const User = require('./src/Sitemas de Login/models/user');  // Modelo User
 const Feedback = require('./src/Sistema de Feedback/models/feedback');  // Modelo Feedback
 const AreaProfi = require('./src/Sistema de Cursos/models/areaProfi');
@@ -36,7 +33,7 @@ app.use((error, req, res, next) => {
 });
 
 // Sincronizando o banco de dados com as tabelas Produto e Usuario
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: true }).then(() => {
     const port = 3003;
     app.set("port", port);
     const server = http.createServer(app);

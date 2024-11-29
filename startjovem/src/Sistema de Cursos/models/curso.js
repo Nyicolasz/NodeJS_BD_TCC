@@ -30,6 +30,12 @@ const Curso = sequelize.define('Curso', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    QuantidadeAulas: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0, // Valor inicial padrão
+    },
+
 });
 
 // Definindo a associação com exclusão em cascata

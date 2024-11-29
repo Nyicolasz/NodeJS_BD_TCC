@@ -52,7 +52,7 @@ exports.SearchAll = async (req, res) => {
                 {
                     model: Curso,
                     as: 'curso',  // Usar o alias definido na associação
-                    attributes: ['Nome_Curso', 'Nivel', 'Carga_Horaria']  // Defina os campos que deseja incluir
+                    attributes: ['Nome_Curso', 'Nivel', 'Carga_Horaria', 'QuantidadeAulas']
                 }
             ]
         });
@@ -66,7 +66,13 @@ exports.SearchAll = async (req, res) => {
 exports.SearchOne = (req, res) => {
     const id = req.params.id;
     Trilha.findByPk(id, {
-        include: ['user', 'curso']  // Inclui os dados da tabela de áreas profissionais
+        include: [
+            {
+                model: Curso,
+                as: 'curso',
+                attributes: ['Nome_Curso', 'Nivel', 'Carga_Horaria', 'QuantidadeAulas']
+            }
+        ]
     })
         .then((trilha) => {
             if (trilha) {
@@ -88,7 +94,7 @@ exports.SearchByUser = async (req, res) => {
                 {
                     model: Curso,
                     as: 'curso',  // Usar o alias definido na associação
-                    attributes: ['id', 'Nome_Curso', 'Link', 'Nivel', 'Carga_Horaria']  // Campos específicos do curso
+                    attributes: ['id', 'Nome_Curso', 'Link', 'Nivel', 'Carga_Horaria', 'QuantidadeAulas']  // Adicione QuantidadeAulas
                 }
             ]
         });
@@ -97,6 +103,7 @@ exports.SearchByUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // Atualizar o progresso de uma trilha específica
 exports.UpdateProgress = async (req, res) => {
